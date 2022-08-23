@@ -5,11 +5,14 @@ import Swal from 'sweetalert2'
 import 'moment/locale/id' 
 import { useDeleteActivityMutation } from '../services/ActivityApi';
 import { useDispatch } from 'react-redux';
+import { setLoading, unsetLoading } from '../features/activitySlice';
 moment.locale('id')
 
 const FooterActivity = ({title, dates, id}) => {
 
     const [deleteActivity] = useDeleteActivityMutation();
+
+    const dispatch = useDispatch();
 
 const deleteActivityButton = () => {
 Swal.fire({
@@ -21,18 +24,18 @@ Swal.fire({
   confirmButtonText: 'Hapus',
     cancelButtonText: '<span style="color:#4b5563"> Batal </span>',
   reverseButtons: true
-}).then((result) => {
+}).then( async (result) => {
   if (result.isConfirmed) {
-deleteActivity(id);
-    Swal.fire({
+    await dispatch(setLoading());
+    await deleteActivity(id);
+    await dispatch(unsetLoading());
+    await Swal.fire({
         icon: 'info',
      html: `activity berhasil dihapus `,
      showConfirmButton: false 
   })
   }
 })
-
-
     }
 
 

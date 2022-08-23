@@ -3,28 +3,43 @@ import React from 'react'
 import { AiOutlinePlus } from "react-icons/ai";
 import { useAddNewActivityMutation } from '../services/ActivityApi';
 import { useDispatch } from 'react-redux';
-import { setActivity} from '../features/activitySlice';
+import { createActivity, setActivity, setLoading, unsetLoading} from '../features/activitySlice';
 
 const ActivityHome = () => {
 
-    const [addNewActivity, { isLoading }] = useAddNewActivityMutation()
+    // const [addNewActivity, { isLoading }] = useAddNewActivityMutation()
   
     const dispatch = useDispatch();
+    const urll = 'https://floating-mountain-35184.herokuapp.com/activity-groups/'
+
   const saveActivity = async () => {
+    dispatch(setLoading());
      let title = "New Activity";
      let email = "wow@gmail.com";
-
-    if (!isLoading) {
       try {
-        await addNewActivity({ title, email }).unwrap();
+        const createData = {title, email};
+        const response = await fetch(urll, {
+          method: 'POST',
+          body: JSON.stringify(createData),
+          headers: {
+            'Content-Type' : 'application/json'
+          }
+        })
 
-       await dispatch(setActivity());
+        const json = await response.json();
+
+        if(!response.ok) {
+          console.log('gagal mengirim data');
+        }
+
+        if(response.ok) {
+        dispatch(createActivity(json));
+            dispatch(unsetLoading());
+        }
    
-        console.log('berhasil');
       } catch (err) {
         console.error('Failed to save the post: ', err)
       }
-    }
   }
 
   return (
